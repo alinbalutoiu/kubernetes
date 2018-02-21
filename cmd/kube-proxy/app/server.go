@@ -342,6 +342,8 @@ with the apiserver API to configure the proxy.`,
 			verflag.PrintAndExitIfRequested()
 			utilflag.PrintFlags(cmd.Flags())
 
+			initForOS()
+
 			cmdutil.CheckErr(opts.Complete())
 			cmdutil.CheckErr(opts.Validate(args))
 			cmdutil.CheckErr(opts.Run())
@@ -355,6 +357,7 @@ with the apiserver API to configure the proxy.`,
 	}
 
 	opts.AddFlags(cmd.Flags())
+	installFlagsForOS(cmd.Flags())
 
 	cmd.MarkFlagFilename("config", "yaml", "yml", "json")
 
