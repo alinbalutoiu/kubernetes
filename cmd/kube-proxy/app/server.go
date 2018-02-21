@@ -71,6 +71,7 @@ import (
 	"k8s.io/kubernetes/pkg/util/oom"
 	utilpointer "k8s.io/kubernetes/pkg/util/pointer"
 	"k8s.io/kubernetes/pkg/util/resourcecontainer"
+	"k8s.io/kubernetes/pkg/util/service"
 	"k8s.io/kubernetes/pkg/version"
 	"k8s.io/kubernetes/pkg/version/verflag"
 	"k8s.io/utils/exec"
@@ -336,6 +337,21 @@ with the apiserver API to configure the proxy.`,
 			verflag.PrintAndExitIfRequested()
 			utilflag.PrintFlags(cmd.Flags())
 
+			// On Windows, this may be launching as a service or with an option to
+			// register the service.
+			stop, runAsService, err := service.InitService()
+			if err != nil {
+				glog.Fatal(err)
+			}
+
+			if stop {
+				os.Exit(0)
+			}
+
+			if runAsService {
+				glog.Infof("Running as service!")
+			}
+
 			cmdutil.CheckErr(opts.Complete())
 			cmdutil.CheckErr(opts.Validate(args))
 			cmdutil.CheckErr(opts.Run())
@@ -350,6 +366,7 @@ with the apiserver API to configure the proxy.`,
 
 	flags := cmd.Flags()
 	AddFlags(opts, flags)
+	service.InstallServiceFlags(cmd.Flags(), "kube-proxy", "Kubernetes network proxy")
 
 	cmd.MarkFlagFilename("config", "yaml", "yml", "json")
 

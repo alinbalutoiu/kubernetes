@@ -52,6 +52,7 @@ filegroup(
         "//pkg/util/resourcecontainer:all-srcs",
         "//pkg/util/rlimit:all-srcs",
         "//pkg/util/selinux:all-srcs",
+        "//pkg/util/service:all-srcs",
         "//pkg/util/slice:all-srcs",
         "//pkg/util/strings:all-srcs",
         "//pkg/util/sysctl:all-srcs",

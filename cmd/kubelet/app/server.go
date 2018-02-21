@@ -90,6 +90,7 @@ import (
 	nodeutil "k8s.io/kubernetes/pkg/util/node"
 	"k8s.io/kubernetes/pkg/util/oom"
 	"k8s.io/kubernetes/pkg/util/rlimit"
+	"k8s.io/kubernetes/pkg/util/service"
 	"k8s.io/kubernetes/pkg/version"
 	"k8s.io/kubernetes/pkg/version/verflag"
 )
@@ -166,6 +167,21 @@ HTTP server: The kubelet can also listen for HTTP and respond to a simple API
 				glog.Fatal(err)
 			}
 
+			// On Windows, this may be launching as a service or with an option to
+			// register the service.
+			stop, runAsService, err := service.InitService()
+			if err != nil {
+				glog.Fatal(err)
+			}
+
+			if stop {
+				os.Exit(0)
+			}
+
+			if runAsService {
+				glog.Infof("Running as service!")
+			}
+
 			// load kubelet config file, if provided
 			if configFile := kubeletFlags.KubeletConfigFile; len(configFile) > 0 {
 				kubeletConfig, err = loadConfigFile(configFile)
@@ -236,6 +252,8 @@ HTTP server: The kubelet can also listen for HTTP and respond to a simple API
 	kubeletFlags.AddFlags(cleanFlagSet)
 	options.AddKubeletConfigFlags(cleanFlagSet, kubeletConfig)
 	options.AddGlobalFlags(cleanFlagSet)
+	// Install service flags
+	service.InstallServiceFlags(cleanFlagSet, componentKubelet, "Kubernetes Kubelet")
 	cleanFlagSet.BoolP("help", "h", false, fmt.Sprintf("help for %s", cmd.Name()))
 
 	// ugly, but necessary, because Cobra's default UsageFunc and HelpFunc pollute the flagset with global flags

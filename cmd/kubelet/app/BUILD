@@ -100,6 +100,7 @@ go_library(
         "//pkg/util/node:go_default_library",
         "//pkg/util/oom:go_default_library",
         "//pkg/util/rlimit:go_default_library",
+        "//pkg/util/service:go_default_library",
         "//pkg/version:go_default_library",
         "//pkg/version/verflag:go_default_library",
         "//pkg/volume:go_default_library",
