@@ -236,6 +236,7 @@ HTTP server: The kubelet can also listen for HTTP and respond to a simple API
 	kubeletFlags.AddFlags(cleanFlagSet)
 	options.AddKubeletConfigFlags(cleanFlagSet, kubeletConfig)
 	options.AddGlobalFlags(cleanFlagSet)
+	options.AddOSFlags(cleanFlagSet)
 	cleanFlagSet.BoolP("help", "h", false, fmt.Sprintf("help for %s", cmd.Name()))
 
 	// ugly, but necessary, because Cobra's default UsageFunc and HelpFunc pollute the flagset with global flags
@@ -371,6 +372,11 @@ func UnsecuredDependencies(s *options.KubeletServer) (*kubelet.Dependencies, err
 func Run(s *options.KubeletServer, kubeDeps *kubelet.Dependencies) error {
 	// To help debugging, immediately log version
 	glog.Infof("Version: %+v", version.Get())
+	// This can happen only on Windows if it cannot register or unregister
+	// as a Windows service. On Linux err will always be nil.
+	if err := initForOS(); err != nil {
+		return fmt.Errorf("unable to register or unregister as a service: %v", err)
+	}
 	if err := run(s, kubeDeps); err != nil {
 		return fmt.Errorf("failed to run Kubelet: %v", err)
 	}
