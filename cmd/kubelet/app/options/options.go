@@ -324,6 +324,7 @@ func ValidateKubeletServer(s *KubeletServer) error {
 func (s *KubeletServer) AddFlags(fs *pflag.FlagSet) {
 	s.KubeletFlags.AddFlags(fs)
 	AddKubeletConfigFlags(fs, &s.KubeletConfiguration)
+	installFlagsForOS(fs)
 }
 
 // AddFlags adds flags for a specific KubeletFlags to the specified FlagSet
