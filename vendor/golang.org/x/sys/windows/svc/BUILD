@@ -2,39 +2,32 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
-    srcs = [
-        "mksyscall.go",
-    ] + select({
+    srcs = select({
         "@io_bazel_rules_go//go/platform:windows": [
-            "dll_windows.go",
-            "env_unset.go",
-            "env_windows.go",
-            "eventlog.go",
-            "exec_windows.go",
-            "memory_windows.go",
-            "race0.go",
-            "security_windows.go",
+            "event.go",
+            "go12.go",
+            "go13.go",
+            "security.go",
             "service.go",
-            "str.go",
-            "syscall.go",
-            "syscall_windows.go",
-            "types_windows.go",
-            "zsyscall_windows.go",
         ],
         "//conditions:default": [],
     }) + select({
         "@io_bazel_rules_go//go/platform:windows_386": [
-            "asm_windows_386.s",
-            "types_windows_386.go",
+            "sys_386.s",
         ],
         "@io_bazel_rules_go//go/platform:windows_amd64": [
-            "asm_windows_amd64.s",
-            "types_windows_amd64.go",
+            "sys_amd64.s",
         ],
         "//conditions:default": [],
     }),
-    importpath = "golang.org/x/sys/windows",
+    importpath = "golang.org/x/sys/windows/svc",
     visibility = ["//visibility:public"],
+    deps = select({
+        "@io_bazel_rules_go//go/platform:windows": [
+            "//vendor/golang.org/x/sys/windows:go_default_library",
+        ],
+        "//conditions:default": [],
+    }),
 )
 
 filegroup(
@@ -48,7 +41,7 @@ filegroup(
     name = "all-srcs",
     srcs = [
         ":package-srcs",
-        "//vendor/golang.org/x/sys/windows/svc:all-srcs",
+        "//vendor/golang.org/x/sys/windows/svc/mgr:all-srcs",
     ],
     tags = ["automanaged"],
     visibility = ["//visibility:public"],
