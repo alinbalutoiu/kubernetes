@@ -138,6 +138,10 @@ func (ds *dockerService) determinePodIPBySandboxID(sandboxID string) string {
 			// Instead of relying on this call, an explicit call to addToNetwork should be
 			// done immediately after ContainerCreation, in case of Windows only. TBD Issue # to handle this
 
+			// If OVS is installed, call the CNI plugin to fetch the IP of the container
+			if ovsInstalled := os.Getenv("OVS_RUNDIR"); ovsInstalled != "" {
+				return ds.getIP(c.ID, r)
+			}
 			if containerIP := getContainerIP(r); containerIP != "" {
 				return containerIP
 			}
